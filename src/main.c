@@ -4,6 +4,7 @@
 #include <glib.h>
 #include <libinput.h>
 #include <libudev.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -33,30 +34,32 @@ int main(int argc, char** argv) {
 
 	double gesture_start[2];
 	double gesture_end[2];
-	while ((ev = libinput_get_event(libinput_ctx)) != NULL) {
-		switch (libinput_event_get_type(ev)) {
-			case LIBINPUT_EVENT_GESTURE_SWIPE_BEGIN:
-				{
-					struct libinput_event_touch* touch = libinput_event_get_touch_event(ev);
-					gesture_start[0] = libinput_event_touch_get_x(touch);
-					gesture_start[1] = libinput_event_touch_get_y(touch);
-				}
-				break;
-			case LIBINPUT_EVENT_GESTURE_SWIPE_END:
-				{
-					struct libinput_event_gesture* gesture = libinput_event_get_gesture_event(ev);
-					gesture_end[0] = gesture_start[0] + libinput_event_gesture_get_dx(gesture);
-					gesture_end[1] = gesture_start[1] + libinput_event_gesture_get_dy(gesture);
+	while (true) {
+		if ((ev = libinput_get_event(libinput_ctx)) != NULL) {
+			switch (libinput_event_get_type(ev)) {
+				case LIBINPUT_EVENT_GESTURE_SWIPE_BEGIN:
+					{
+						struct libinput_event_touch* touch = libinput_event_get_touch_event(ev);
+						gesture_start[0] = libinput_event_touch_get_x(touch);
+						gesture_start[1] = libinput_event_touch_get_y(touch);
+					}
+					break;
+				case LIBINPUT_EVENT_GESTURE_SWIPE_END:
+					{
+						struct libinput_event_gesture* gesture = libinput_event_get_gesture_event(ev);
+						gesture_end[0] = gesture_start[0] + libinput_event_gesture_get_dx(gesture);
+						gesture_end[1] = gesture_start[1] + libinput_event_gesture_get_dy(gesture);
 
-					g_debug("Gesture start: (%f, %f) Gesture end: (%f, %f)", gesture_start[0],
-						gesture_start[1], gesture_end[0], gesture_end[1]);
-				}
-				break;
-			default:
-				break;
+						g_debug("Gesture start: (%f, %f) Gesture end: (%f, %f)", gesture_start[0],
+							gesture_start[1], gesture_end[0], gesture_end[1]);
+					}
+					break;
+				default:
+					break;
+			}
+			libinput_event_destroy(ev);
+			libinput_dispatch(libinput_ctx);
 		}
-		libinput_event_destroy(ev);
-		libinput_dispatch(libinput_ctx);
 	}
 
 	libinput_unref(libinput_ctx);
