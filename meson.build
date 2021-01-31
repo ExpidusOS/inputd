@@ -6,6 +6,13 @@ glib = dependency('glib-2.0')
 libdevident = dependency('libdevident')
 libinput = dependency('libinput')
 
+conf_data = configuration_data()
+conf_data.set('bindir', join_paths(get_option('prefix'), get_option('bindir')))
+configure_file(input: 'data/expidus-inputd.desktop.in', output: 'expidus-inputd.desktop',
+	configuration: conf_data,
+	install: true,
+	install_dir: join_paths(get_option('sysconfdir'), 'xdg/autostart'))
+
 inputd = executable('expidus-inputd', ['src/main.c', 'src/math.c'],
 	install: true,
 	include_directories: [include_directories('include')],

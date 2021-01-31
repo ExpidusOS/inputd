@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=ExpidusOS Input Daemon
+Comment=The daemon which handles touchscreen and trackpad gestures
+Exec=@bindir@/expidus-inputd
+NotShowIn=GNOME;KDE;Unity;
+Terminal=false
+Hidden=true

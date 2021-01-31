@@ -9,3 +9,4 @@ meson-uninstalled
 *.so*
 *.a*
 expidus-inputd*
+!data/expidus-inputd.desktop.in
