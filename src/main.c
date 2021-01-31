@@ -112,7 +112,6 @@ int main(int argc, char** argv) {
 			switch (libinput_event_get_type(ev)) {
 				case LIBINPUT_EVENT_TOUCH_DOWN:
 					{
-						g_debug("Processing event: touch down");
 						struct libinput_event_touch* touch = libinput_event_get_touch_event(ev);
 						int slot = libinput_event_touch_get_slot(touch);
 						if (slot > 20) break;
@@ -124,7 +123,6 @@ int main(int argc, char** argv) {
 					break;
         case LIBINPUT_EVENT_TOUCH_MOTION:
           {
-						g_debug("Processing event: touch motion");
 						struct libinput_event_touch* touch = libinput_event_get_touch_event(ev);
 						int slot = libinput_event_touch_get_slot(touch);
 						if (slot > 20) break;
@@ -134,7 +132,6 @@ int main(int argc, char** argv) {
           break;
 				case LIBINPUT_EVENT_TOUCH_UP:
 					{
-						g_debug("Processing event: touch up");
 						struct libinput_event_touch* touch = libinput_event_get_touch_event(ev);
 						int slot = libinput_event_touch_get_slot(touch);
 						if (slot > 20) break;
@@ -166,6 +163,11 @@ int main(int argc, char** argv) {
 						if (n_down == 0) {
 							if (timeoutms > ((now.tv_sec - timedown.tv_sec) * 1000000 + (now.tv_nsec - timedown.tv_nsec) / 1000) / 1000) {
 								g_debug("Received gesture (S: %d, E: %d, D: %d, F: %d)", swipe, edge, dist, n_pending);
+								if (swipe == EXPIDUS_INPUT_SWIPE_UD) {
+									if (!g_spawn_async(NULL, (char**){"esdashboard", "--toggle", NULL}, NULL, G_SPAWN_STDOUT_TO_DEV_NULL | G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_FILE_AND_ARGV_ZERO | G_SPAWN_SEARCH_PATH_FROM_ENVP, NULL, NULL, NULL, &error)) {
+										g_warning("Failed to open the dashboard: %s", error->message);
+									}
+								}
 							}
 							n_pending++;
 						}
