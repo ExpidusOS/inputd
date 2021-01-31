@@ -164,9 +164,7 @@ int main(int argc, char** argv) {
 							if (timeoutms > ((now.tv_sec - timedown.tv_sec) * 1000000 + (now.tv_nsec - timedown.tv_nsec) / 1000) / 1000) {
 								g_debug("Received gesture (S: %d, E: %d, D: %d, F: %d)", swipe, edge, dist, n_pending);
 								if (swipe == EXPIDUS_INPUT_SWIPE_UD) {
-									if (!g_spawn_async(NULL, (char**){"esdashboard", "--toggle", NULL}, NULL, G_SPAWN_STDOUT_TO_DEV_NULL | G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_FILE_AND_ARGV_ZERO | G_SPAWN_SEARCH_PATH_FROM_ENVP, NULL, NULL, NULL, &error)) {
-										g_warning("Failed to open the dashboard: %s", error->message);
-									}
+									system("esdashboard --toggle");
 								}
 							}
 							n_pending++;
