@@ -7,7 +7,6 @@
 #include <fcntl.h>
 #include <glib.h>
 #include <libinput.h>
-#include <libudev.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -60,10 +59,7 @@ int main(int argc, char** argv) {
 	gchar* seat_name = (gchar*)g_getenv("XDG_SEAT");
 	if (seat_name == NULL) seat_name = "seat0";
 
-	struct libinput* libinput_ctx = libinput_udev_create_context(&libinput_iface, NULL, udev_new());
-	libinput_udev_assign_seat(libinput_ctx, seat_name);
-	libinput_dispatch(libinput_ctx);
-
+	struct libinput* libinput_ctx = libinput_path_create_context(&libinput_iface, NULL);
 	struct libinput_event* ev;
 
 	for (int i = 0; i < 20; i++) {
@@ -109,6 +105,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	libinput_dispatch(libinput_ctx);
 	while (true) {
 		if ((ev = libinput_get_event(libinput_ctx)) != NULL) {
 			switch (libinput_event_get_type(ev)) {
