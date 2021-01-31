@@ -89,6 +89,7 @@ int main(int argc, char** argv) {
 	g_signal_connect(disp, "monitor-removed", G_CALLBACK(monitors_changed), NULL);
 
 	if (devident->touchinput_path != NULL) {
+		g_debug("Adding touchscreen input device: %s", devident->touchinput_path);
 		struct libinput_device* dev = libinput_path_add_device(libinput_ctx, devident->touchinput_path);
 		if (dev == NULL) {
 			g_error("Failed to add touchscreen input device");
@@ -105,12 +106,13 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	libinput_dispatch(libinput_ctx);
 	while (true) {
+		libinput_dispatch(libinput_ctx);
 		if ((ev = libinput_get_event(libinput_ctx)) != NULL) {
 			switch (libinput_event_get_type(ev)) {
 				case LIBINPUT_EVENT_TOUCH_DOWN:
 					{
+						g_debug("Processing event: touch down");
 						struct libinput_event_touch* touch = libinput_event_get_touch_event(ev);
 						int slot = libinput_event_touch_get_slot(touch);
 						if (slot > 20) break;
@@ -122,6 +124,7 @@ int main(int argc, char** argv) {
 					break;
         case LIBINPUT_EVENT_TOUCH_MOTION:
           {
+						g_debug("Processing event: touch motion");
 						struct libinput_event_touch* touch = libinput_event_get_touch_event(ev);
 						int slot = libinput_event_touch_get_slot(touch);
 						if (slot > 20) break;
@@ -131,6 +134,7 @@ int main(int argc, char** argv) {
           break;
 				case LIBINPUT_EVENT_TOUCH_UP:
 					{
+						g_debug("Processing event: touch up");
 						struct libinput_event_touch* touch = libinput_event_get_touch_event(ev);
 						int slot = libinput_event_touch_get_slot(touch);
 						if (slot > 20) break;
@@ -171,7 +175,6 @@ int main(int argc, char** argv) {
 					break;
 			}
 			libinput_event_destroy(ev);
-			libinput_dispatch(libinput_ctx);
 		}
 	}
 
