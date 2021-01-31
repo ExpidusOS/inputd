@@ -2,6 +2,7 @@
 #include <expidus-input/math.h>
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
+#include <devident.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <glib.h>
@@ -73,6 +74,14 @@ int main(int argc, char** argv) {
 		end[i][1] = CLEAR_MOTION;
 	}
 
+	GError* error = NULL;
+	devident_t* devident = devident_new(&error);
+	if (devident == NULL) {
+		g_error("Failed to identify the device: %s", error->message);
+		g_clear_error(&error);
+		return EXIT_FAILURE;
+	}
+
   expidus_input_edge_conf_t edge_sizes = {
     0.50, 0.50, 0.50, 0.50
   };
@@ -82,6 +91,23 @@ int main(int argc, char** argv) {
 	GdkDisplay* disp = gdk_display_get_default();
 	g_signal_connect(disp, "monitor-added", G_CALLBACK(monitors_added), NULL);
 	g_signal_connect(disp, "monitor-removed", G_CALLBACK(monitors_changed), NULL);
+
+	if (devident->touchinput_path != NULL) {
+		struct libinput_device* dev = libinput_path_add_device(libinput_ctx, devident->touchinput_path);
+		if (dev == NULL) {
+			g_error("Failed to add touchscreen input device");
+			libinput_unref(libinput_ctx);
+			devident_destroy(devident);
+			return EXIT_FAILURE;
+		}
+
+		if (libinput_device_config_send_events_set_mode(dev, LIBINPUT_CONFIG_SEND_EVENTS_ENABLED) != LIBINPUT_CONFIG_STATUS_SUCCESS) {
+			g_error("Failed to enable events on touchscreen input device");
+			libinput_unref(libinput_ctx);
+			devident_destroy(devident);
+			return EXIT_FAILURE;
+		}
+	}
 
 	while (true) {
 		if ((ev = libinput_get_event(libinput_ctx)) != NULL) {
@@ -153,5 +179,6 @@ int main(int argc, char** argv) {
 	}
 
 	libinput_unref(libinput_ctx);
+	devident_destroy(devident);
 	return EXIT_SUCCESS;
 }
