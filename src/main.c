@@ -163,7 +163,7 @@ int main(int argc, char** argv) {
 						if (n_down == 0) {
 							if (timeoutms > ((now.tv_sec - timedown.tv_sec) * 1000000 + (now.tv_nsec - timedown.tv_nsec) / 1000) / 1000) {
 								g_debug("Received gesture (S: %d, E: %d, D: %d, F: %d)", swipe, edge, dist, n_pending);
-								if (swipe == EXPIDUS_INPUT_SWIPE_UD && edge == EXPIDUS_INPUT_EDGE_BOTTOM && dist == EXPIDUS_INPUT_DIST_SHORT) {
+								if (swipe == EXPIDUS_INPUT_SWIPE_UD) {
 									system("esdashboard --toggle");
 								}
 							}
